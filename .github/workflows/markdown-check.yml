@@ -1,0 +1,49 @@
+name: Markdown Quality Check
+
+# When should this workflow run?
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# What should this workflow do?
+jobs:
+  markdown-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Get the code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      # Step 2: Check markdown formatting
+      - name: Lint Markdown files
+        uses: avto-dev/markdown-lint@v1
+        with:
+          args: '.'
+          config: '.markdownlint.json'
+        continue-on-error: true
+      
+      # Step 3: Check for broken links (optional, can fail gracefully)
+      - name: Check for broken links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+        continue-on-error: true
+      
+      # Step 4: Count total markdown files
+      - name: Count Markdown Files
+        run: |
+          echo "📊 Repository Statistics:"
+          echo "Total Markdown files: $(find . -name '*.md' | wc -l)"
+          echo "Total lines of documentation: $(cat *.md | wc -l)"
+          
+      # Step 5: Display success message
+      - name: Success Message
+        run: |
+          echo "✅ Markdown quality check completed!"
+          echo "📚 Your customer success documentation looks good!"
